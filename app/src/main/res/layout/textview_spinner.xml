@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/spText"
+    android:layout_width="fill_parent"
+    android:textSize="@dimen/dimen_letra_app_estandar"
+    android:padding="8dp"
+    android:textAllCaps="true"
+    android:layout_height="wrap_content" />

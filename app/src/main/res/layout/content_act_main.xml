@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="co.zonaapp.emisora.cancharapidav2.ActMain"
-    android:background="@drawable/cancha_futbol"
+    tools:context=".Actividades.ActMain"
     tools:showIn="@layout/activity_main">
 
     <ScrollView
@@ -23,7 +22,7 @@
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="110dp"
+                android:layout_height="160dp"
                 android:id="@+id/imageView"
                 android:src="@drawable/logo2"
                 android:layout_gravity="center_horizontal"
@@ -39,8 +38,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/editUsuario"
-                    android:hint="Usuario"
-                    android:textColor="@color/colorAccent"
+                    android:hint="@string/usuario"
                     android:maxLength="25"
                     android:inputType="text"
                     android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 _ -"
@@ -59,9 +57,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/editPassword"
-                    android:hint="Password"
+                    android:hint="@string/password"
                     android:maxLength="25"
-                    android:textColor="@color/colorAccent"
                     android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 _ -"
                     android:inputType="textPassword"
                     android:layout_centerVertical="true"
@@ -73,8 +70,16 @@
                 android:layout_width="match_parent"
                 android:layout_marginTop="20dp"
                 android:layout_height="wrap_content"
-                android:text="Ingresar"
+                android:text="@string/ingresar"
                 android:id="@+id/btnIngresar"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                android:text="Registrarse"
+                android:id="@+id/btnRegistrar"
                 android:layout_gravity="center_horizontal" />
 
             <!-- <ImageView
