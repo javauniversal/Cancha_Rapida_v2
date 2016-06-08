@@ -24,7 +24,25 @@
         <activity
             android:name=".Actividades.ActHome"
             android:label="@string/title_activity_act_home"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".Actividades.ActReservar"
+            android:label="@string/title_activity_act_reservar"
+            android:parentActivityName=".Actividades.ActHome"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="co.zonaapp.emisora.cancharapidav2.Actividades.ActHome" />
+        </activity>
+        <activity
+            android:name=".Actividades.ActMiReservas"
+            android:label="@string/title_activity_act_mi_reservas"
+            android:parentActivityName=".Actividades.ActHome"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="co.zonaapp.emisora.cancharapidav2.Actividades.ActHome" />
+        </activity>
     </application>
 
 </manifest>

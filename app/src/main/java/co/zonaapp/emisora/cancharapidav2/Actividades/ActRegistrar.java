@@ -1,5 +1,6 @@
 package co.zonaapp.emisora.cancharapidav2.Actividades;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -107,7 +108,7 @@ public class ActRegistrar extends BaseActivity {
 
     private void guardarUsuario() {
         alertDialog.show();
-        String url = String.format("%1$s%2$s", getString(R.string.url_base), "login_user");
+        String url = String.format("%1$s%2$s", getString(R.string.url_base), "crear_cliente");
         StringRequest jsonRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
@@ -161,6 +162,16 @@ public class ActRegistrar extends BaseActivity {
         Gson gson = new Gson();
         if (!response.equals("[]")) {
             try {
+
+                Diccionario respuesta = gson.fromJson(response, Diccionario.class);
+                if (respuesta.getId() == 1) {
+                    Toast.makeText(this, respuesta.getDescripcion(), Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(ActRegistrar.this, ActMain.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    finish();
+                } else {
+                    Toast.makeText(this, respuesta.getDescripcion(), Toast.LENGTH_LONG).show();
+                }
 
             } catch (IllegalStateException ex) {
                 ex.printStackTrace();
