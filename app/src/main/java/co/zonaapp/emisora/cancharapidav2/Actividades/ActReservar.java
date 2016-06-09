@@ -6,6 +6,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -19,13 +23,26 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.gson.Gson;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import co.zonaapp.emisora.cancharapidav2.Entidades.Diccionario;
+import co.zonaapp.emisora.cancharapidav2.Entidades.Esenarios;
+import co.zonaapp.emisora.cancharapidav2.Entidades.ListEsenarios;
 import co.zonaapp.emisora.cancharapidav2.R;
 
 public class ActReservar extends BaseActivity {
+
+    private Spinner spinner_esenarios;
+    private TextView txtCodigo;
+    private TextView txtDescripcion;
+    private TextView txtValor;
+    private DecimalFormat format;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +51,16 @@ public class ActReservar extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        format = new DecimalFormat("#,###.##");
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        spinner_esenarios = (Spinner) findViewById(R.id.spinner_esenarios);
+        txtCodigo = (TextView) findViewById(R.id.txtCodigo);
+        txtDescripcion = (TextView) findViewById(R.id.txtDescripcion);
+        txtValor = (TextView) findViewById(R.id.txtValor);
+
+        listaEsenarios();
 
     }
 
@@ -47,7 +72,7 @@ public class ActReservar extends BaseActivity {
                     @Override
                     public void onResponse(String response) {
                         // response
-                        parseJSON(response);
+                            parseJSON(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -82,7 +107,42 @@ public class ActReservar extends BaseActivity {
     }
 
     private void parseJSON(String response) {
-
+        Gson gson = new Gson();
+        if (!response.equals("[]")) {
+            try {
+                ListEsenarios listEsenarios =  gson.fromJson(response, ListEsenarios.class);
+                loadeEsenarios(listEsenarios);
+            } catch (IllegalStateException ex) {
+                ex.printStackTrace();
+                alertDialog.dismiss();
+            } finally {
+                alertDialog.dismiss();
+            }
+        } else {
+            alertDialog.dismiss();
+            Toast.makeText(this, "Problemas al recuperar los datos", Toast.LENGTH_LONG).show();
+        }
     }
 
+    private void loadeEsenarios(final ListEsenarios listEsenarios) {
+
+        ArrayAdapter<Esenarios> adapterEstado = new ArrayAdapter<>(this, R.layout.textview_spinner, listEsenarios);
+        spinner_esenarios.setAdapter(adapterEstado);
+        spinner_esenarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                Esenarios esenarios = listEsenarios.get(position);
+                txtCodigo.setText(String.format("Código: %1$s", esenarios.getCodigo()));
+                txtDescripcion.setText(String.format("Descripción: %1$s", esenarios.getDescripcion()));
+                txtValor.setText(String.format("Valor: $ %1$s", format.format(esenarios.getValor())));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+
+        });
+
+    }
 }
