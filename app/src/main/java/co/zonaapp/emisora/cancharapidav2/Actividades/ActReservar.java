@@ -1,5 +1,6 @@
 package co.zonaapp.emisora.cancharapidav2.Actividades;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +25,18 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+import com.borax12.materialdaterangepicker.time.RadialPickerLayout;
+import com.borax12.materialdaterangepicker.time.TimePickerDialog;
 import com.google.gson.Gson;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,13 +46,15 @@ import co.zonaapp.emisora.cancharapidav2.Entidades.Esenarios;
 import co.zonaapp.emisora.cancharapidav2.Entidades.ListEsenarios;
 import co.zonaapp.emisora.cancharapidav2.R;
 
-public class ActReservar extends BaseActivity {
+public class ActReservar extends BaseActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private Spinner spinner_esenarios;
     private TextView txtCodigo;
     private TextView txtDescripcion;
     private TextView txtValor;
     private DecimalFormat format;
+    private Esenarios esenarios;
+    private String fecha;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +71,8 @@ public class ActReservar extends BaseActivity {
         txtCodigo = (TextView) findViewById(R.id.txtCodigo);
         txtDescripcion = (TextView) findViewById(R.id.txtDescripcion);
         txtValor = (TextView) findViewById(R.id.txtValor);
+        Button btnReservas = (Button) findViewById(R.id.btnReservas);
+        btnReservas.setOnClickListener(this);
 
         listaEsenarios();
 
@@ -132,7 +146,7 @@ public class ActReservar extends BaseActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                Esenarios esenarios = listEsenarios.get(position);
+                esenarios = listEsenarios.get(position);
                 txtCodigo.setText(String.format("Código: %1$s", esenarios.getCodigo()));
                 txtDescripcion.setText(String.format("Descripción: %1$s", esenarios.getDescripcion()));
                 txtValor.setText(String.format("Valor: $ %1$s", format.format(esenarios.getValor())));
@@ -144,5 +158,71 @@ public class ActReservar extends BaseActivity {
 
         });
 
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case R.id.btnReservas:
+
+                Calendar now = Calendar.getInstance();
+                DatePickerDialog dpd = com.borax12.materialdaterangepicker.date.DatePickerDialog.newInstance(
+                        ActReservar.this,
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
+                );
+                dpd.show(getFragmentManager(), "Datepickerdialog");
+
+                break;
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
+
+        monthOfYear = (monthOfYear+1);
+
+        Date fechaSeleccionada = converFecha(year, monthOfYear, dayOfMonth);
+        Date fechaActual = new Date();
+
+        Calendar now = Calendar.getInstance();
+        TimePickerDialog tpd = TimePickerDialog.newInstance(
+                ActReservar.this,
+                now.get(Calendar.HOUR_OF_DAY),
+                now.get(Calendar.MINUTE),
+                false
+        );
+
+        fecha = String.format("%1$s/%2$s/%3$s", year, monthOfYear, dayOfMonth);
+
+        tpd.show(getFragmentManager(), "Timepickerdialog");
+
+    }
+
+    @Override
+    public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int hourOfDayEnd, int minuteEnd) {
+
+        String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
+        String minuteString = minute < 10 ? "0"+minute : ""+minute;
+        String hourStringEnd = hourOfDayEnd < 10 ? "0"+hourOfDayEnd : ""+hourOfDayEnd;
+        String minuteStringEnd = minuteEnd < 10 ? "0"+minuteEnd : ""+minuteEnd;
+
+        String hora = String.format("%1$s:%2$s", hourString, minuteString);
+
+        Bundle bundle = new Bundle();
+        Intent intent = new Intent(this, ActTomarReserva.class);
+        bundle.putSerializable("value", esenarios);
+        bundle.putString("fecha", fecha);
+        bundle.putString("hora", hora);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    public Date converFecha(int year, int mes, int dia){
+        Calendar calendar = new GregorianCalendar(year, mes, dia);
+        Date fecha = new Date(calendar.getTimeInMillis());
+        return fecha;
     }
 }

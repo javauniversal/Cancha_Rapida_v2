@@ -3,6 +3,10 @@
     package="co.zonaapp.emisora.cancharapidav2">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <protected-broadcast android:name="android.intent.action.MEDIA_MOUNTED"/>
 
     <application
         android:allowBackup="true"
@@ -43,6 +47,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="co.zonaapp.emisora.cancharapidav2.Actividades.ActHome" />
         </activity>
+        <activity
+            android:name=".Actividades.ActTomarReserva"
+            android:label="@string/title_activity_act_tomar_reserva"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

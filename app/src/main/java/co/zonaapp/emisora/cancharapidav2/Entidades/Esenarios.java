@@ -2,10 +2,12 @@ package co.zonaapp.emisora.cancharapidav2.Entidades;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by hp_gergarga on 08/06/2016.
  */
-public class Esenarios {
+public class Esenarios implements Serializable {
 
     @SerializedName("idescenarios")
     private int idescenarios;

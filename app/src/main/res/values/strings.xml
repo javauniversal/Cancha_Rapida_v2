@@ -8,4 +8,5 @@
     <string name="ingresar">Ingresar</string>
     <string name="title_activity_act_reservar">Reservar</string>
     <string name="title_activity_act_mi_reservas">Mis Reservas</string>
+    <string name="title_activity_act_tomar_reserva">Tomar Reserva</string>
 </resources>
