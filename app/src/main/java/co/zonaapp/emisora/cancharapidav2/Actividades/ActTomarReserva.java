@@ -157,12 +157,12 @@ public class ActTomarReserva extends AppCompatActivity implements View.OnClickLi
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if(requestCode == MY_PERMISSIONS){
+        if(requestCode == MY_PERMISSIONS) {
             if(grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
                 Toast.makeText(ActTomarReserva.this, "Permisos aceptados", Toast.LENGTH_SHORT).show();
                 btnAdjuntar.setEnabled(true);
             }
-        }else{
+        } else {
             showExplanation();
         }
     }
