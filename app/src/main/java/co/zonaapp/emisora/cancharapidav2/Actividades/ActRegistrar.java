@@ -65,6 +65,7 @@ public class ActRegistrar extends BaseActivity {
 
         spinner_tipo_usu = (Spinner) findViewById(R.id.spinner_tipo_usu);
         FloatingActionButton guardar_usuario = (FloatingActionButton) findViewById(R.id.guardar_usuario);
+
         guardar_usuario.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
