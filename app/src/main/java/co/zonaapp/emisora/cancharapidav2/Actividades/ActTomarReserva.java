@@ -22,26 +22,34 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.text.format.Time;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static android.Manifest.permission.CAMERA;
 import static co.zonaapp.emisora.cancharapidav2.Entidades.Login.getLoginStatic;
 
+import co.zonaapp.emisora.cancharapidav2.Calendario.MonthViewThis;
 import co.zonaapp.emisora.cancharapidav2.Entidades.Esenarios;
 import co.zonaapp.emisora.cancharapidav2.Entidades.ResponseReserva;
 import co.zonaapp.emisora.cancharapidav2.R;
+
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -55,9 +63,11 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.github.ik024.calendar_lib.listeners.MonthViewClickListeners;
+import com.github.ik024.calendar_lib.listeners.YearViewClickListeners;
 import com.google.gson.Gson;
 
-public class ActTomarReserva extends BaseActivity implements View.OnClickListener {
+public class ActTomarReserva extends BaseActivity implements View.OnClickListener , MonthViewClickListeners {
 
     private Esenarios esenarios;
     private String fecha;
@@ -76,13 +86,15 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
     private final int PHOTO_CODE = 200;
     private final int SELECT_PICTURE = 300;
     private CoordinatorLayout coor;
-    private Button btnconfirmar;
     private String mPath;
     private ImageView imgCarnet;
     private Bitmap bitmap;
     private String fileName;
     private ProgressDialog prgDialog;
     private String encodedString;
+    MonthViewThis monthView;
+
+    private TimePicker timePicker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +102,14 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         setContentView(R.layout.activity_tomar_reserva);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        //getting reference to MonthCalendarView
+        monthView = (MonthViewThis) findViewById(R.id.calendar_month_view);
+
+        //registering the click listeners
+        monthView.registerClickListener(this);
+
 
         prgDialog = new ProgressDialog(this);
         // Set Cancelable as False
@@ -106,11 +126,12 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         imgCarnet = (ImageView) findViewById(R.id.imgCarnet);
 
 
+
         coor = (CoordinatorLayout) findViewById(R.id.coor);
         btnAdjuntar = (Button) findViewById(R.id.btnAdjuntar);
         btnAdjuntar.setOnClickListener(this);
 
-        btnconfirmar = (Button) findViewById(R.id.btnconfirmar);
+        Button btnconfirmar = (Button) findViewById(R.id.btnconfirmar);
         btnconfirmar.setOnClickListener(this);
 
         Intent intent = this.getIntent();
@@ -132,8 +153,8 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
 
     public void llenarDatosReserva(Esenarios esenarios, String fecha, String hora) {
 
-        txtFecha.setText(String.format("Fecha: %1$s", fecha));
-        txtHora.setText(String.format("Hora: %1$s", hora));
+        txtFecha.setText(String.format("Fecha: %1$s", 0));
+        txtHora.setText(String.format("Hora: %1$s", 0));
         txtCodigo.setText(String.format("Código: %1$s", esenarios.getCodigo()));
         txtNombre.setText(String.format("Nombre: %1$s", esenarios.getNombre()));
         txtDescripcion.setText(String.format("Características: %1$s", esenarios.getDescripcion()));
@@ -505,5 +526,49 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 // Put converted Image string into Async Http Post param
             }
         }.execute(null, null, null);
+
+    }
+
+
+    @Override
+    public void dateClicked(Date dateClicked) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        String strDate = sdf.format(dateClicked);
+
+        dialogoHora(strDate);
+
+        //Toast.makeText(this, "date: "+strDate, Toast.LENGTH_LONG).show();
+
+    }
+
+    private void dialogoHora(final String strDate) {
+        LayoutInflater inflater = getLayoutInflater();
+        View dialoglayout = inflater.inflate(R.layout.dialog_get_hora, null);
+
+        timePicker = (TimePicker) dialoglayout.findViewById(R.id.timePicker);
+        timePicker.clearFocus();
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
+        //builder.setTitle("Seleccionar Hora");
+        builder.setView(dialoglayout).setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                int hour   = timePicker.getCurrentHour();
+
+                fecha = strDate;
+                hora = String.valueOf(hour);
+
+                txtFecha.setText(String.format("Fecha: %1$s", fecha));
+                txtHora.setText(String.format("Hora: %1$s:00", hora));
+
+                dialog.dismiss();
+
+            }
+        });
+
+        builder.show();
     }
 }

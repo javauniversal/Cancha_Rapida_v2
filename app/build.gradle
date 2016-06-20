@@ -21,6 +21,9 @@ android {
 
 repositories {
     jcenter()
+    maven {
+        url 'https://dl.bintray.com/ik/maven/'
+    }
 }
 
 dependencies {
@@ -35,4 +38,5 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.4.0'
     compile 'com.borax12.materialdaterangepicker:library:1.6'
     compile files('libs/joda-time-2.4.jar')
+    compile 'com.github.ik024:calendar-lib:2.0.0'
 }

@@ -1,15 +1,15 @@
 package co.zonaapp.emisora.cancharapidav2.Actividades;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.LruCache;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,24 +24,22 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.borax12.materialdaterangepicker.date.DatePickerDialog;
 import com.borax12.materialdaterangepicker.time.RadialPickerLayout;
 import com.borax12.materialdaterangepicker.time.TimePickerDialog;
 import com.google.gson.Gson;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import co.zonaapp.emisora.cancharapidav2.Entidades.Diccionario;
 import co.zonaapp.emisora.cancharapidav2.Entidades.Esenarios;
 import co.zonaapp.emisora.cancharapidav2.Entidades.ListEsenarios;
 import co.zonaapp.emisora.cancharapidav2.R;
@@ -55,6 +53,8 @@ public class ActReservar extends BaseActivity implements View.OnClickListener, D
     private DecimalFormat format;
     private Esenarios esenarios;
     private String fecha;
+    private NetworkImageView imgEscenario;
+    private ImageLoader mImageLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +70,7 @@ public class ActReservar extends BaseActivity implements View.OnClickListener, D
         spinner_esenarios = (Spinner) findViewById(R.id.spinner_esenarios);
         txtCodigo = (TextView) findViewById(R.id.txtCodigo);
         txtDescripcion = (TextView) findViewById(R.id.txtDescripcion);
+        imgEscenario = (NetworkImageView) findViewById(R.id.imgEscenario);
         txtValor = (TextView) findViewById(R.id.txtValor);
         Button btnReservas = (Button) findViewById(R.id.btnReservas);
         btnReservas.setOnClickListener(this);
@@ -147,9 +148,24 @@ public class ActReservar extends BaseActivity implements View.OnClickListener, D
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 esenarios = listEsenarios.get(position);
+
                 txtCodigo.setText(String.format("Código: %1$s", esenarios.getCodigo()));
                 txtDescripcion.setText(String.format("Descripción: %1$s", esenarios.getDescripcion()));
                 txtValor.setText(String.format("Valor: $ %1$s", format.format(esenarios.getValor())));
+
+                mImageLoader = new ImageLoader(rq, new ImageLoader.ImageCache() {
+                    private final LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(10);
+                    public void putBitmap(String url, Bitmap bitmap) {
+                        mCache.put(url, bitmap);
+                    }
+                    public Bitmap getBitmap(String url) {
+                        return mCache.get(url);
+                    }
+
+                });
+
+                imgEscenario.setImageUrl(esenarios.getFoto(), mImageLoader);
+
             }
 
             @Override
@@ -166,7 +182,15 @@ public class ActReservar extends BaseActivity implements View.OnClickListener, D
         switch (v.getId()) {
             case R.id.btnReservas:
 
-                Calendar now = Calendar.getInstance();
+                Bundle bundle = new Bundle();
+                Intent intent = new Intent(this, ActTomarReserva.class);
+                bundle.putSerializable("value", esenarios);
+                //bundle.putString("fecha", fecha);
+                //bundle.putString("hora", hora);
+                intent.putExtras(bundle);
+                startActivity(intent);
+
+                /*Calendar now = Calendar.getInstance();
                 DatePickerDialog dpd = com.borax12.materialdaterangepicker.date.DatePickerDialog.newInstance(
                         ActReservar.this,
                         now.get(Calendar.YEAR),
@@ -174,6 +198,7 @@ public class ActReservar extends BaseActivity implements View.OnClickListener, D
                         now.get(Calendar.DAY_OF_MONTH)
                 );
                 dpd.show(getFragmentManager(), "Datepickerdialog");
+                */
 
                 break;
         }

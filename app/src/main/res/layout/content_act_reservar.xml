@@ -28,12 +28,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp" />
 
-            <ImageView
-                android:id="@+id/imageView5"
+            <com.android.volley.toolbox.NetworkImageView
+                android:id="@+id/imgEscenario"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/fondo" />
+
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
