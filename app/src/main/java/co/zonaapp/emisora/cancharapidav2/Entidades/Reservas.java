@@ -13,7 +13,7 @@ public class Reservas {
     @SerializedName("fecha")
     private String fecha;
 
-    @SerializedName("hora")
+    @SerializedName("hora_ini")
     private String hora;
 
     @SerializedName("valor")
@@ -30,6 +30,17 @@ public class Reservas {
 
     @SerializedName("escenario")
     private String escenario;
+
+    @SerializedName("imagen_estado")
+    private int imagen_estado;
+
+    public int getImagen_estado() {
+        return imagen_estado;
+    }
+
+    public void setImagen_estado(int imagen_estado) {
+        this.imagen_estado = imagen_estado;
+    }
 
     public int getIdreserva() {
         return idreserva;

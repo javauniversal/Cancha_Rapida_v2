@@ -70,8 +70,8 @@ import com.google.gson.Gson;
 public class ActTomarReserva extends BaseActivity implements View.OnClickListener , MonthViewClickListeners {
 
     private Esenarios esenarios;
-    private String fecha;
-    private String hora;
+    private String fecha = String.valueOf(0);
+    private String hora = String.valueOf(0);
     private TextView txtFecha;
     private TextView txtHora;
     private TextView txtCodigo;
@@ -89,9 +89,9 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
     private String mPath;
     private ImageView imgCarnet;
     private Bitmap bitmap;
-    private String fileName;
+    private String fileName = "";
     private ProgressDialog prgDialog;
-    private String encodedString;
+    private String encodedString = "";
     MonthViewThis monthView;
 
     private TimePicker timePicker;
@@ -153,8 +153,8 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
 
     public void llenarDatosReserva(Esenarios esenarios, String fecha, String hora) {
 
-        txtFecha.setText(String.format("Fecha: %1$s", 0));
-        txtHora.setText(String.format("Hora: %1$s", 0));
+        txtFecha.setText(String.format("Fecha: %1$s", fecha));
+        txtHora.setText(String.format("Hora: %1$s", hora));
         txtCodigo.setText(String.format("Código: %1$s", esenarios.getCodigo()));
         txtNombre.setText(String.format("Nombre: %1$s", esenarios.getNombre()));
         txtDescripcion.setText(String.format("Características: %1$s", esenarios.getDescripcion()));
@@ -169,7 +169,9 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 openCamera();
                 break;
             case R.id.btnconfirmar:
-                saveReserva();
+                if (!fecha.equals('0') && !hora.equals('0'))
+                    saveReserva();
+
                 break;
         }
     }
@@ -498,7 +500,6 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         }
     }
 
-
     // AsyncTask - To convert Image to String
     public void encodeImagetoString() {
         new AsyncTask<Void, Void, String>() {
@@ -528,7 +529,6 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         }.execute(null, null, null);
 
     }
-
 
     @Override
     public void dateClicked(Date dateClicked) {

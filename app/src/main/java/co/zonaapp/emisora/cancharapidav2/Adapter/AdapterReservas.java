@@ -2,6 +2,9 @@ package co.zonaapp.emisora.cancharapidav2.Adapter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,6 +27,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +44,12 @@ public class AdapterReservas extends BaseAdapter {
     private List<Reservas> data;
     public RequestQueue rq;
     public static final String TAG = "MyTag";
+    private static String APP_DIRECTORY = "MyPictureApp/";
+    private static String MEDIA_DIRECTORY = APP_DIRECTORY + "PictureApp";
+    private final int MY_PERMISSIONS = 100;
+    private final int PHOTO_CODE = 200;
+    private final int SELECT_PICTURE = 300;
+    private String mPath;
 
     public AdapterReservas(Activity activity, List<Reservas> data) {
         this.activity = activity;
@@ -105,10 +115,14 @@ public class AdapterReservas extends BaseAdapter {
             holder.btnCancelar.setVisibility(View.GONE);
         }
 
+        if (data.get(position).getImagen_estado() == 1)
+            holder.btnAdjuntar.setVisibility(View.GONE);
+
+
         holder.btnAdjuntar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                openCamera();
             }
         });
 
@@ -121,6 +135,28 @@ public class AdapterReservas extends BaseAdapter {
 
         return convertView;
 
+    }
+
+    private void openCamera() {
+        File file = new File(Environment.getExternalStorageDirectory(), MEDIA_DIRECTORY);
+        boolean isDirectoryCreated = file.exists();
+
+        if(!isDirectoryCreated)
+            isDirectoryCreated = file.mkdirs();
+
+        if(isDirectoryCreated){
+            Long timestamp = System.currentTimeMillis() / 1000;
+            String imageName = timestamp.toString() + ".jpg";
+
+            mPath = Environment.getExternalStorageDirectory() + File.separator + MEDIA_DIRECTORY
+                    + File.separator + imageName;
+
+            File newFile = new File(mPath);
+
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(newFile));
+            activity.startActivityForResult(intent, PHOTO_CODE);
+        }
     }
 
     private void cambiarEstado(final int idreserva, final int i) {

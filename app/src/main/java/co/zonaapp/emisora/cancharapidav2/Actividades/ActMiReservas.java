@@ -1,11 +1,20 @@
 package co.zonaapp.emisora.cancharapidav2.Actividades;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
@@ -21,6 +30,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,9 +40,18 @@ import co.zonaapp.emisora.cancharapidav2.Entidades.ListReservas;
 import co.zonaapp.emisora.cancharapidav2.R;
 import static co.zonaapp.emisora.cancharapidav2.Entidades.Login.getLoginStatic;
 
-public class ActMiReservas extends BaseActivity {
+public class ActMiReservas extends BaseActivity  {
 
     private ListView listView;
+    private final int MY_PERMISSIONS = 100;
+    private final int PHOTO_CODE = 200;
+    private final int SELECT_PICTURE = 300;
+    private String mPath;
+    private Bitmap bitmap;
+    private String fileName = "";
+    private String encodedString = "";
+    private static String APP_DIRECTORY = "MyPictureApp/";
+    private static String MEDIA_DIRECTORY = APP_DIRECTORY + "PictureApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +129,7 @@ public class ActMiReservas extends BaseActivity {
         Gson gson = new Gson();
         if (!response.equals("[]")) {
             try {
+
                 final ListReservas listReservas = gson.fromJson(response, ListReservas.class);
                 AdapterReservas adapterReservas = new AdapterReservas(this, listReservas);
                 listView.setAdapter(adapterReservas);
@@ -125,4 +146,93 @@ public class ActMiReservas extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK){
+            switch (requestCode){
+                case PHOTO_CODE:
+
+                    File file = new File(Environment.getExternalStorageDirectory(), MEDIA_DIRECTORY);
+                    boolean isDirectoryCreated = file.exists();
+
+                    if(!isDirectoryCreated)
+                        isDirectoryCreated = file.mkdirs();
+
+                    if(isDirectoryCreated) {
+                        Long timestamp = System.currentTimeMillis() / 1000;
+                        String imageName = timestamp.toString() + ".jpg";
+
+                        mPath = Environment.getExternalStorageDirectory() + File.separator + MEDIA_DIRECTORY
+                                + File.separator + imageName;
+
+
+                        MediaScannerConnection.scanFile(this,
+                                new String[]{mPath}, null,
+                                new MediaScannerConnection.OnScanCompletedListener() {
+                                    @Override
+                                    public void onScanCompleted(String path, Uri uri) {
+                                        Log.i("ExternalStorage", "Scanned " + path + ":");
+                                        Log.i("ExternalStorage", "-> Uri = " + uri);
+                                    }
+                                });
+
+                        bitmap = BitmapFactory.decodeFile(mPath);
+
+                        String fileNameSegments[] = mPath.split("/");
+                        fileName = fileNameSegments[fileNameSegments.length - 1];
+
+                        uploadImage();
+                    }
+                    break;
+                case SELECT_PICTURE:
+                    Uri path = data.getData();
+                    break;
+
+            }
+        }
+    }
+
+    public void uploadImage() {
+        // When Image is selected from Gallery
+        if (mPath != null && !mPath.isEmpty()) {
+            //prgDialog.setMessage("Convirtiendo IMAGEN!");
+            //prgDialog.show();
+            // Convert image to String using Base64
+            encodeImagetoString();
+            // When Image is not selected from Gallery
+        }
+    }
+
+    // AsyncTask - To convert Image to String
+    public void encodeImagetoString() {
+
+        new AsyncTask<Void, Void, String>() {
+
+            protected void onPreExecute() { };
+
+            @Override
+            protected String doInBackground(Void... params) {
+                BitmapFactory.Options options = null;
+                options = new BitmapFactory.Options();
+                options.inSampleSize = 3;
+                bitmap = BitmapFactory.decodeFile(mPath, options);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Must compress the Image to reduce image size to make upload easy
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                byte[] byte_arr = stream.toByteArray();
+                // Encode Image to String
+                encodedString = Base64.encodeToString(byte_arr, 0);
+                return "";
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                //prgDialog.dismiss();
+                // Put converted Image string into Async Http Post param
+            }
+        }.execute(null, null, null);
+
+    }
 }
