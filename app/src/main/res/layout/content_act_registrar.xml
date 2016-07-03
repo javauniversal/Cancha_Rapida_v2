@@ -149,7 +149,7 @@
                             android:id="@+id/edit_carnet"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:hint="Canet"
+                            android:hint="Canet/Nit"
                             android:inputType="text" />
 
                     </android.support.design.widget.TextInputLayout>

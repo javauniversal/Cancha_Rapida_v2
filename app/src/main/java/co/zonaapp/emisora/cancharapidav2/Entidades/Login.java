@@ -37,6 +37,9 @@ public class Login {
     @SerializedName("cliente_tipo_key")
     private int cliente_tipo_key;
 
+    @SerializedName("descuento")
+    private int descuento;
+
     public static Login loginStatic;
 
     public static Login getLoginStatic() {
@@ -125,5 +128,13 @@ public class Login {
 
     public void setCliente_tipo_key(int cliente_tipo_key) {
         this.cliente_tipo_key = cliente_tipo_key;
+    }
+
+    public int getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(int descuento) {
+        this.descuento = descuento;
     }
 }

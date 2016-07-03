@@ -109,7 +109,12 @@ public class AdapterReservas extends BaseAdapter {
             holder.btnAdjuntar.setVisibility(View.GONE);
             holder.btnCancelar.setVisibility(View.GONE);
         } else if (data.get(position).getEstado() == 4) {
-            //Confirmada
+            //Rechazada.
+            holder.txtEstado.setText(String.format("%1$s", "Rechazada"));
+            holder.btnAdjuntar.setVisibility(View.GONE);
+            holder.btnCancelar.setVisibility(View.GONE);
+        } else if (data.get(position).getEstado() == 5) {
+            //Cancelada
             holder.txtEstado.setText(String.format("%1$s", "Confirmada"));
             holder.btnAdjuntar.setVisibility(View.GONE);
             holder.btnCancelar.setVisibility(View.GONE);

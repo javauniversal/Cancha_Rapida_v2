@@ -239,8 +239,8 @@ public class ActReservar extends BaseActivity implements View.OnClickListener, D
         Bundle bundle = new Bundle();
         Intent intent = new Intent(this, ActTomarReserva.class);
         bundle.putSerializable("value", esenarios);
-        bundle.putString("fecha", fecha);
-        bundle.putString("hora", hora);
+        bundle.putString("fecha", "0");
+        bundle.putString("hora", "0");
         intent.putExtras(bundle);
         startActivity(intent);
     }

@@ -7,5 +7,6 @@
 
     <color name="color_gris">#E6E6E6</color>
     <color name="grid_item_bg_pressed">#D8D8D8</color>
+    <color name="color_blanco">#FFF</color>
 
 </resources>

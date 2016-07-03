@@ -138,8 +138,8 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         Bundle bundle = intent.getExtras();
         if (bundle != null) {
             esenarios = (Esenarios) bundle.getSerializable("value");
-            fecha = bundle.getString("fecha");
-            hora = bundle.getString("hora");
+            //fecha = bundle.getString("fecha");
+            //hora = bundle.getString("hora");
 
             llenarDatosReserva(esenarios, fecha, hora);
         }
@@ -148,6 +148,10 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
             btnAdjuntar.setEnabled(true);
         else
             btnAdjuntar.setEnabled(false);
+
+        if (getLoginStatic().getCliente_tipo_key() == 1) {
+            btnAdjuntar.setEnabled(false);
+        }
 
     }
 
@@ -158,7 +162,9 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         txtCodigo.setText(String.format("Código: %1$s", esenarios.getCodigo()));
         txtNombre.setText(String.format("Nombre: %1$s", esenarios.getNombre()));
         txtDescripcion.setText(String.format("Características: %1$s", esenarios.getDescripcion()));
-        txtValor.setText(String.format("Precio: $ %1$s", format.format(esenarios.getValor())));
+        // Descuento
+
+        txtValor.setText(String.format("Precio: $ %1$s", format.format(esenarios.getValor()*getLoginStatic().getDescuento()/100)));
 
     }
 
@@ -169,7 +175,8 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 openCamera();
                 break;
             case R.id.btnconfirmar:
-                if (!fecha.equals('0') && !hora.equals('0'))
+
+                if (!fecha.equals("0"))
                     saveReserva();
 
                 break;
@@ -225,7 +232,7 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 else
                     params.put("descuento", String.valueOf(20));
 
-                params.put("valor", String.valueOf(esenarios.getValor()));
+                params.put("valor", String.valueOf(esenarios.getValor()*getLoginStatic().getDescuento()/100));
                 params.put("tipocliente", String.valueOf(getLoginStatic().getCliente_tipo_key()));
                 params.put("estado", String.valueOf(1));
 
