@@ -40,6 +40,7 @@ import co.zonaapp.emisora.cancharapidav2.R;
 
 import static co.zonaapp.emisora.cancharapidav2.Entidades.ImagenRuta.setId_reserva;
 import static co.zonaapp.emisora.cancharapidav2.Entidades.ImagenRuta.setmPath;
+import static co.zonaapp.emisora.cancharapidav2.Entidades.Login.getLoginStatic;
 
 public class AdapterReservas extends BaseAdapter {
 
@@ -99,12 +100,20 @@ public class AdapterReservas extends BaseAdapter {
         if (data.get(position).getEstado() == 1) {
             //Por confirmar.
             holder.txtEstado.setText(String.format("%1$s", "Por confirmar"));
-            holder.btnAdjuntar.setVisibility(View.VISIBLE);
+            if (getLoginStatic().getCliente_tipo_key() == 1) {
+                holder.btnAdjuntar.setVisibility(View.GONE);
+            } else {
+                holder.btnAdjuntar.setVisibility(View.VISIBLE);
+            }
             holder.btnCancelar.setVisibility(View.VISIBLE);
         } else if (data.get(position).getEstado() == 2) {
             //En espera
             holder.txtEstado.setText(String.format("%1$s", "En espera"));
-            holder.btnAdjuntar.setVisibility(View.VISIBLE);
+            if (getLoginStatic().getCliente_tipo_key() == 1) {
+                holder.btnAdjuntar.setVisibility(View.GONE);
+            } else {
+                holder.btnAdjuntar.setVisibility(View.VISIBLE);
+            }
             holder.btnCancelar.setVisibility(View.VISIBLE);
         } else if (data.get(position).getEstado() == 3) {
             //Cancelada

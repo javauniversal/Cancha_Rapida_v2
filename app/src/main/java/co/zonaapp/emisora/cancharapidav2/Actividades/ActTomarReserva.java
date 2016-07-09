@@ -163,7 +163,9 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         txtDescripcion.setText(String.format("Características: %1$s", esenarios.getDescripcion()));
         // Descuento
 
-        txtValor.setText(String.format("Precio: $ %1$s", format.format(esenarios.getValor()*getLoginStatic().getDescuento()/100)));
+        int descuento = (int) esenarios.getValor() - (int) esenarios.getValor()*getLoginStatic().getDescuento()/100;
+
+        txtValor.setText(String.format("Precio: $ %1$s", format.format(descuento)));
 
     }
 
@@ -234,14 +236,6 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 params.put("tipocliente", String.valueOf(getLoginStatic().getCliente_tipo_key()));
                 params.put("estado", String.valueOf(1));
 
-                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
-                /*String idImei;
-                if ( Build.VERSION.SDK_INT >= 23)
-                    idImei = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-                else
-                    idImei = telephonyManager.getDeviceId();
-                */
                 params.put("imei", Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
                 params.put("imagen", fileName);
