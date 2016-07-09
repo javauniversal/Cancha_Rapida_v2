@@ -36,6 +36,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,7 +65,6 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.github.ik024.calendar_lib.listeners.MonthViewClickListeners;
-import com.github.ik024.calendar_lib.listeners.YearViewClickListeners;
 import com.google.gson.Gson;
 
 public class ActTomarReserva extends BaseActivity implements View.OnClickListener , MonthViewClickListeners {
@@ -109,7 +109,6 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
 
         //registering the click listeners
         monthView.registerClickListener(this);
-
 
         prgDialog = new ProgressDialog(this);
         // Set Cancelable as False
@@ -176,8 +175,11 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 break;
             case R.id.btnconfirmar:
 
-                if (!fecha.equals("0"))
+                if (!fecha.equals("0")) {
                     saveReserva();
+                } else {
+                    Toast.makeText(ActTomarReserva.this, "Error al serializar los datos", Toast.LENGTH_LONG).show();
+                }
 
                 break;
         }
@@ -226,11 +228,7 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
 
                 // 1 = particular.
                 // 2 = estudiante.
-
-                if (getLoginStatic().getCliente_tipo_key() == 1)
-                    params.put("descuento", String.valueOf(0));
-                else
-                    params.put("descuento", String.valueOf(20));
+                params.put("descuento", String.valueOf(getLoginStatic().getDescuento()));
 
                 params.put("valor", String.valueOf(esenarios.getValor()*getLoginStatic().getDescuento()/100));
                 params.put("tipocliente", String.valueOf(getLoginStatic().getCliente_tipo_key()));
@@ -238,18 +236,19 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
 
                 TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-                String idImei;
+                /*String idImei;
                 if ( Build.VERSION.SDK_INT >= 23)
                     idImei = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
                 else
                     idImei = telephonyManager.getDeviceId();
-
-                params.put("imei", idImei);
+                */
+                params.put("imei", Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
                 params.put("imagen", fileName);
                 params.put("data", encodedString);
 
                 return params;
+
             }
         };
 
@@ -292,7 +291,7 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                     finish();
 
                 } else if (responseReserva.getId() == -1) {
-                    Toast.makeText(this, "Error: la reserva no se pudo efectuar", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, responseReserva.getDescripcion(), Toast.LENGTH_LONG).show();
                 }
 
             } catch (IllegalStateException ex) {
@@ -543,11 +542,45 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         String strDate = sdf.format(dateClicked);
 
-        dialogoHora(strDate);
+        Date fechaActual = new Date();
+        SimpleDateFormat fechaA = new SimpleDateFormat("yyyy/MM/dd");
+        String fechaab = fechaA.format(fechaActual);
 
-        //Toast.makeText(this, "date: "+strDate, Toast.LENGTH_LONG).show();
+        String fechavalida = compararFechasConDate(strDate, fechaab);
 
+        if (fechavalida.equals("La Fecha 1 es menor")) {
+            Toast.makeText(this, "La reserva no puede ser menor a la fecha actual", Toast.LENGTH_LONG).show();
+        } else {
+            dialogoHora(strDate);
+        }
     }
+
+    private String compararFechasConDate(String fechaSelect, String fechaActual) {
+        String resultado="";
+        try {
+            /**Obtenemos las fechas enviadas en el formato a comparar*/
+            SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
+            Date fechaDate1 = formateador.parse(fechaSelect);
+            Date fechaDate2 = formateador.parse(fechaActual);
+
+            System.out.println("Parametro Date Fecha 1 = "+fechaDate1+"\n" +
+                    "Parametro Date fechaActual = "+fechaDate2+"\n");
+
+            if ( fechaDate1.before(fechaDate2) ){
+                resultado= "La Fecha 1 es menor";
+            }else{
+                if ( fechaDate2.before(fechaDate1) ){
+                    resultado= "La Fecha 1 es Mayor";
+                }else{
+                    resultado= "Las Fechas Son iguales";
+                }
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return resultado;
+    }
+
 
     private void dialogoHora(final String strDate) {
         LayoutInflater inflater = getLayoutInflater();

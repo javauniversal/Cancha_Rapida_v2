@@ -1,6 +1,5 @@
 package co.zonaapp.emisora.cancharapidav2.Actividades;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,9 +9,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings;
 import android.support.v7.widget.Toolbar;
-import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.ListView;
@@ -37,7 +34,11 @@ import java.util.Map;
 
 import co.zonaapp.emisora.cancharapidav2.Adapter.AdapterReservas;
 import co.zonaapp.emisora.cancharapidav2.Entidades.ListReservas;
+import co.zonaapp.emisora.cancharapidav2.Entidades.ResponseReserva;
 import co.zonaapp.emisora.cancharapidav2.R;
+
+import static co.zonaapp.emisora.cancharapidav2.Entidades.ImagenRuta.getId_reserva;
+import static co.zonaapp.emisora.cancharapidav2.Entidades.ImagenRuta.getmPath;
 import static co.zonaapp.emisora.cancharapidav2.Entidades.Login.getLoginStatic;
 
 public class ActMiReservas extends BaseActivity  {
@@ -46,7 +47,6 @@ public class ActMiReservas extends BaseActivity  {
     private final int MY_PERMISSIONS = 100;
     private final int PHOTO_CODE = 200;
     private final int SELECT_PICTURE = 300;
-    private String mPath;
     private Bitmap bitmap;
     private String fileName = "";
     private String encodedString = "";
@@ -105,7 +105,7 @@ public class ActMiReservas extends BaseActivity  {
 
                 params.put("clientes_iduser", String.valueOf(getLoginStatic().getIduser()));
 
-                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                /*TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
                 String idImei;
                 if ( Build.VERSION.SDK_INT >= 23)
@@ -114,6 +114,7 @@ public class ActMiReservas extends BaseActivity  {
                     idImei = telephonyManager.getDeviceId();
 
                 params.put("imei", idImei);
+                */
 
                 return params;
             }
@@ -164,12 +165,8 @@ public class ActMiReservas extends BaseActivity  {
                         Long timestamp = System.currentTimeMillis() / 1000;
                         String imageName = timestamp.toString() + ".jpg";
 
-                        mPath = Environment.getExternalStorageDirectory() + File.separator + MEDIA_DIRECTORY
-                                + File.separator + imageName;
-
-
                         MediaScannerConnection.scanFile(this,
-                                new String[]{mPath}, null,
+                                new String[]{getmPath()}, null,
                                 new MediaScannerConnection.OnScanCompletedListener() {
                                     @Override
                                     public void onScanCompleted(String path, Uri uri) {
@@ -178,9 +175,9 @@ public class ActMiReservas extends BaseActivity  {
                                     }
                                 });
 
-                        bitmap = BitmapFactory.decodeFile(mPath);
+                        bitmap = BitmapFactory.decodeFile(getmPath());
 
-                        String fileNameSegments[] = mPath.split("/");
+                        String fileNameSegments[] = getmPath().split("/");
                         fileName = fileNameSegments[fileNameSegments.length - 1];
 
                         uploadImage();
@@ -196,7 +193,7 @@ public class ActMiReservas extends BaseActivity  {
 
     public void uploadImage() {
         // When Image is selected from Gallery
-        if (mPath != null && !mPath.isEmpty()) {
+        if (getmPath() != null && !getmPath().isEmpty()) {
             //prgDialog.setMessage("Convirtiendo IMAGEN!");
             //prgDialog.show();
             // Convert image to String using Base64
@@ -217,7 +214,7 @@ public class ActMiReservas extends BaseActivity  {
                 BitmapFactory.Options options = null;
                 options = new BitmapFactory.Options();
                 options.inSampleSize = 3;
-                bitmap = BitmapFactory.decodeFile(mPath, options);
+                bitmap = BitmapFactory.decodeFile(getmPath(), options);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 // Must compress the Image to reduce image size to make upload easy
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
@@ -229,10 +226,73 @@ public class ActMiReservas extends BaseActivity  {
 
             @Override
             protected void onPostExecute(String msg) {
-                //prgDialog.dismiss();
-                // Put converted Image string into Async Http Post param
+                updateImg();
             }
         }.execute(null, null, null);
+    }
 
+    private void updateImg() {
+        alertDialog.show();
+        String url = String.format("%1$s%2$s", getString(R.string.url_base), "adjuntar_imagen");
+        StringRequest jsonRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        parseJSONIMG(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                            Toast.makeText(ActMiReservas.this, "Error de tiempo de espera", Toast.LENGTH_LONG).show();
+                        } else if (error instanceof AuthFailureError) {
+                            Toast.makeText(ActMiReservas.this, "Error Servidor", Toast.LENGTH_LONG).show();
+                        } else if (error instanceof ServerError) {
+                            Toast.makeText(ActMiReservas.this, "Server Error", Toast.LENGTH_LONG).show();
+                        } else if (error instanceof NetworkError) {
+                            Toast.makeText(ActMiReservas.this, "Error de red", Toast.LENGTH_LONG).show();
+                        } else if (error instanceof ParseError) {
+                            Toast.makeText(ActMiReservas.this, "Error al serializar los datos", Toast.LENGTH_LONG).show();
+                        }
+
+                        alertDialog.dismiss();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+
+                params.put("idreserva", String.valueOf(getId_reserva()));
+                params.put("imagen", fileName);
+                params.put("data", encodedString);
+
+                return params;
+            }
+        };
+
+        jsonRequest.setRetryPolicy(new DefaultRetryPolicy(60000, 1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        rq.add(jsonRequest);
+    }
+
+    private void parseJSONIMG(String response) {
+        Gson gson = new Gson();
+        final ResponseReserva responseReserva = gson.fromJson(response, ResponseReserva.class);
+
+        if (responseReserva.getId() == 1) {
+
+            //OK
+            Toast.makeText(this, responseReserva.getDescripcion(), Toast.LENGTH_LONG).show();
+            startActivity(new Intent(ActMiReservas.this, ActMiReservas.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            finish();
+
+        } else {
+            //Error
+            Toast.makeText(this, responseReserva.getDescripcion(), Toast.LENGTH_LONG).show();
+        }
     }
 }

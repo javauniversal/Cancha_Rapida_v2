@@ -38,6 +38,9 @@ import co.zonaapp.emisora.cancharapidav2.Entidades.Reservas;
 import co.zonaapp.emisora.cancharapidav2.Entidades.ResponseReserva;
 import co.zonaapp.emisora.cancharapidav2.R;
 
+import static co.zonaapp.emisora.cancharapidav2.Entidades.ImagenRuta.setId_reserva;
+import static co.zonaapp.emisora.cancharapidav2.Entidades.ImagenRuta.setmPath;
+
 public class AdapterReservas extends BaseAdapter {
 
     private Activity activity;
@@ -127,6 +130,7 @@ public class AdapterReservas extends BaseAdapter {
         holder.btnAdjuntar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setId_reserva(data.get(position).getIdreserva());
                 openCamera();
             }
         });
@@ -155,6 +159,8 @@ public class AdapterReservas extends BaseAdapter {
 
             mPath = Environment.getExternalStorageDirectory() + File.separator + MEDIA_DIRECTORY
                     + File.separator + imageName;
+
+            setmPath(mPath);
 
             File newFile = new File(mPath);
 
@@ -221,7 +227,7 @@ public class AdapterReservas extends BaseAdapter {
 
             } catch (IllegalStateException ex) {
                 ex.printStackTrace();
-            } finally {}
+            }
         } else {
             Toast.makeText(activity, "Error: no se recuperaron datos", Toast.LENGTH_LONG).show();
         }

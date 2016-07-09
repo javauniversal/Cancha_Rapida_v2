@@ -2,11 +2,12 @@
     <string name="app_name">Cancha Rapida v2</string>
     <string name="title_activity_act_registrar">Registrar Usuario</string>
     <string name="title_activity_act_home">Inicio</string>
-    <string name="url_base">http://zonaapp.co/cancha_rapida/service/</string>
+    <string name="url_base">http://cancharapida.co/service/</string>
     <string name="usuario">Usuario</string>
     <string name="password">Password</string>
     <string name="ingresar">Ingresar</string>
     <string name="title_activity_act_reservar">Reservar</string>
     <string name="title_activity_act_mi_reservas">Mis Reservas</string>
     <string name="title_activity_act_tomar_reserva">Tomar Reserva</string>
+    <string name="recuperar_password"><u>Recuperar password</u></string>
 </resources>

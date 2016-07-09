@@ -2,9 +2,6 @@ package co.zonaapp.emisora.cancharapidav2.Entidades;
 
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by hp_gergarga on 29/05/2016.
- */
 public class Login {
 
     @SerializedName("iduser")
