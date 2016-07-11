@@ -180,7 +180,7 @@ public class ActTomarReserva extends BaseActivity implements View.OnClickListene
                 if (!fecha.equals("0")) {
                     saveReserva();
                 } else {
-                    Toast.makeText(ActTomarReserva.this, "Error al serializar los datos", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ActTomarReserva.this, "Seleccione una fecha y hora para realizar la reserva.", Toast.LENGTH_LONG).show();
                 }
 
                 break;
